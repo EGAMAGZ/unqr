@@ -24,6 +24,7 @@
     "$fresh/": "https://deno.land/x/fresh@1.7.3/",
     "@openjs/universal-qrcode": "jsr:@openjs/universal-qrcode@^1.0.2",
     "@valibot/valibot": "jsr:@valibot/valibot@^0.42.1",
+    "daisyui": "npm:daisyui@^4.12.24",
     "preact": "https://esm.sh/preact@10.22.0",
     "preact/": "https://esm.sh/preact@10.22.0/",
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
