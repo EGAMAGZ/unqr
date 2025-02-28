@@ -9,6 +9,6 @@ export default {
     daisyui,
   ],
   daisyui: {
-	  themes: ["lofi"]
-  }
+    themes: ["lofi"],
+  },
 } satisfies Config;
