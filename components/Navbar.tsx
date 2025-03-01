@@ -14,8 +14,8 @@ export function Navbar(props: Props) {
     >
       <div class="flex-1">
         <IconQrcode />
-        <span class="font-bold text-lg">UNQR</span>
-        <span class="text-xs italic">
+        <span class="font-bold text-lg ml-2">UNQR</span>
+        <span class="text-xs italic ml-4">
           Códigos QR fáciles de usar: ¡copiar, pegar, generar y listo!
         </span>
       </div>
