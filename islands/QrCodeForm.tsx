@@ -36,7 +36,7 @@ export function QrCodeImg(props: { url: string; class?: string }) {
   return qrCodeSrc.value
     ? (
       <div
-        class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl ${
+        class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl svg-transparent ${
           props.class ?? ""
         }`}
 	// deno-lint-ignore react-no-danger
