@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.svg-transparent path:first-child{
-	@apply !fill-transparent
+.svg-transparent path:first-child {
+  @apply !fill-transparent;
 }

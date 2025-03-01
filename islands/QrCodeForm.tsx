@@ -9,7 +9,9 @@ export function QrCodeForm() {
 
   return (
     <div class="flex">
-      <QrCodeImg url={url.value} />
+      <QrCodeImg url={url.value} class="flex-1" />
+      <div class="flex-1">
+      </div>
     </div>
   );
 }
@@ -19,7 +21,7 @@ export function QrCodeImg(props: { url: string; class?: string }) {
   const qrCodeSrc = useSignal<string | null>(null);
   const generateQr = async () => {
     try {
-      const dataUrl = await Qr.toString(props.url, { type:"svg" });
+      const dataUrl = await Qr.toString(props.url, { type: "svg" });
       qrCodeSrc.value = dataUrl;
       error.value = null;
     } catch (e) {
@@ -39,8 +41,8 @@ export function QrCodeImg(props: { url: string; class?: string }) {
         class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl svg-transparent ${
           props.class ?? ""
         }`}
-	// deno-lint-ignore react-no-danger
-	dangerouslySetInnerHTML= {{ __html: qrCodeSrc.value }}
+        // deno-lint-ignore react-no-danger
+        dangerouslySetInnerHTML={{ __html: qrCodeSrc.value }}
       >
       </div>
     )
