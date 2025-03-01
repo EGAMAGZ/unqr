@@ -2,16 +2,52 @@ import * as v from "@valibot/valibot";
 import { QrCodeSchema } from "../schema/qr-code.ts";
 import { Signal, useSignal, useSignalEffect } from "@preact/signals";
 import Qr from "qrcode";
+import { PLACEHOLDER_URL } from "../util/constants.ts";
 
 export function QrCodeForm() {
-  const url = useSignal<string | null>(null);
+  const url = useSignal(PLACEHOLDER_URL);
+
   return (
-    <div>
-      {url.value ? <QrCode url={url} /> : <UrlForm url={url} />}
+    <div class="flex">
+      <QrCodeImg url={url.value} />
     </div>
   );
 }
 
+export function QrCodeImg(props: { url: string; class?: string }) {
+  const error = useSignal<string | null>(null);
+  const qrCodeSrc = useSignal<string | null>(null);
+  const generateQr = async () => {
+    try {
+      const dataUrl = await Qr.toString(props.url, { type:"svg" });
+      qrCodeSrc.value = dataUrl;
+      error.value = null;
+    } catch (e) {
+      error.value = "Error al generar el QR";
+      qrCodeSrc.value = null;
+      console.error(e);
+    }
+  };
+
+  useSignalEffect(() => {
+    generateQr();
+  });
+
+  return qrCodeSrc.value
+    ? (
+      <div
+        class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl ${
+          props.class ?? ""
+        }`}
+	// deno-lint-ignore react-no-danger
+	dangerouslySetInnerHTML= {{ __html: qrCodeSrc.value }}
+      >
+      </div>
+    )
+    : null;
+}
+
+/*
 function UrlForm({ url }: { url: Signal<string | null> }) {
   const error = useSignal<string | null>(null);
   const handleSubmit = (event: SubmitEvent) => {
@@ -43,51 +79,4 @@ function UrlForm({ url }: { url: Signal<string | null> }) {
       {error}
     </form>
   );
-}
-function QrCode({ url }: { url: Signal<string | null> }) {
-  const qrCodeSrc = useSignal<string | null>(null);
-  const error = useSignal<string | null>(null);
-
-  const generateQr = async () => {
-    try {
-      const dataUrl = await Qr.toDataURL(url.value);
-      qrCodeSrc.value = dataUrl;
-      error.value = null;
-    } catch (e) {
-      error.value = "Error al generar el QR";
-      qrCodeSrc.value = null;
-      console.error(e);
-    }
-  };
-
-  useSignalEffect(() => {
-    generateQr();
-  });
-
-  if (error.value) {
-    return <div>{error.value}</div>;
-  }
-
-  return qrCodeSrc.value
-    ? (
-      <div>
-        <img src={qrCodeSrc.value} />
-        <div class="flex gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              qrCodeSrc.value = null;
-              url.value = null;
-            }}
-          >
-            Descartar
-          </button>
-
-          <button type="button">
-            Descargar
-          </button>
-        </div>
-      </div>
-    )
-    : null;
-}
+}*/
