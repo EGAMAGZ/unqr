@@ -4,13 +4,11 @@ export default function App({ Component }: PageProps) {
   return (
     <html data-theme="lofi">
       <head>
-        <title>UnQr</title>
+        <title>UNQR</title>
         <link rel="stylesheet" href="/styles.css" />
       </head>
       <body>
-        <div class="container mx-auto">
-          <Component />
-        </div>
+        <Component />
       </body>
     </html>
   );

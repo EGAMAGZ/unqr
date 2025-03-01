@@ -1,10 +1,10 @@
 import { QrCodeForm } from "../islands/QrCodeForm.tsx";
-import { useSignal } from "@preact/signals";
-import { PLACEHOLDER_URL } from "../util/constants.ts";
+import { Navbar } from "../components/Navbar.tsx";
 
 export default function Page() {
   return (
-    <div class="p-4">
+    <div class="p-4 flex flex-col gap-6">
+      <Navbar />
       <QrCodeForm />
     </div>
   );

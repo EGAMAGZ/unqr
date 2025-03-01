@@ -4,13 +4,19 @@ import { Signal, useSignal, useSignalEffect } from "@preact/signals";
 import Qr from "qrcode";
 import { PLACEHOLDER_URL } from "../util/constants.ts";
 
-export function QrCodeForm() {
+interface QrCodeFormProps {
+  class?: string;
+}
+
+export function QrCodeForm(props: QrCodeFormProps) {
   const url = useSignal(PLACEHOLDER_URL);
 
   return (
-    <div class="flex">
+    <div class={`flex gap-4 ${props.class ?? ""}`}>
       <QrCodeImg url={url.value} class="flex-1" />
       <div class="flex-1">
+        <span class="text-4xl font-semibold">Generar Codigo QR</span>
+        <div class="divider" />
       </div>
     </div>
   );
