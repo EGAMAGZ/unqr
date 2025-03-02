@@ -16,7 +16,7 @@ export function Navbar(props: Props) {
         <IconQrcode />
         <span class="font-bold text-lg ml-2">UNQR</span>
         <span class="text-xs italic ml-4 hidden md:inline-block">
-          Códigos QR fáciles de usar: ¡copiar, pegar, generar y listo!
+          Easy to use QR codes: copy, paste, generate and go!
         </span>
       </div>
       <div class="flex-none">
