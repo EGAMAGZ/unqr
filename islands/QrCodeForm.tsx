@@ -18,10 +18,6 @@ interface QrCodeFormProps {
 export function QrCodeForm(props: QrCodeFormProps) {
   const url = useSignal<string>("");
 
-  useSignalEffect(() => {
-    console.log(url.value);
-  });
-
   return (
     <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
       <QrCodeImg url={url} class="flex-1" />
