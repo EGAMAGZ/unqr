@@ -2,7 +2,7 @@ import { PageProps } from "$fresh/server.ts";
 
 export default function App({ Component }: PageProps) {
   return (
-    <html data-theme="lofi">
+    <html data-theme="lofi" lang="en">
       <head>
         <title>UNQR</title>
         <meta charset="utf-8" />

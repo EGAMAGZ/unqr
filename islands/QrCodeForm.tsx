@@ -138,8 +138,8 @@ function UrlForm(props: { url: Signal<string> }) {
     <div class="flex flex-col gap-4">
       <label class="form-control">
         <div class="label">
-          <span class="label-text">Escribe o pega la URL:</span>
-          <span class="label-text-alt">Tu codigo QR abrirá esta URL</span>
+          <span class="label-text">Enter or paste the URL:</span>
+          <span class="label-text-alt">Your QR Code will open the URL</span>
         </div>
         <div class="join flex">
           <input
@@ -176,7 +176,7 @@ function UrlForm(props: { url: Signal<string> }) {
         disabled={!downloadable.value}
       >
         <Download class="size-4" />
-        Descargar
+        Download
       </button>
     </div>
   );
