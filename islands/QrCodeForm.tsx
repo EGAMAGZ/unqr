@@ -149,7 +149,7 @@ function UrlForm(props: { url: Signal<string> }) {
             onInput={handleChange}
           />
           <select
-            class="select select-primary select-sm join-item"
+            class="select select-primary select-sm join-item bg-primary text-primary-content"
             name="fileType"
             onChange={handleChange}
           >
@@ -170,12 +170,12 @@ function UrlForm(props: { url: Signal<string> }) {
       <button
         type="button"
         onClick={downloadCode}
-        class={`btn btn-primary btn-sm rounded w-fit ${
+        class={`btn btn-primary btn-sm rounded md:w-fit ${
           !downloadable.value ? "btn-disabled" : ""
         }`}
         disabled={!downloadable.value}
       >
-        <Download class="size-3" />
+        <Download class="size-4" />
         Descargar
       </button>
     </div>

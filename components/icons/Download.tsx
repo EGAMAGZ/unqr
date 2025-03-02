@@ -13,7 +13,7 @@ export function Download(props: Props) {
       stroke-linecap="round"
       stroke-linejoin="round"
       class={`icon icon-tabler icons-tabler-outline icon-tabler-download ${
-        props.class ?? "w-6 h-6"
+        props.class ?? "w-4 h-4"
       }`}
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
