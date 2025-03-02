@@ -5,7 +5,7 @@ import {
   QrCode,
   QrCodeSchema,
 } from "../schema/qr-code.ts";
-import { useSignal, useSignalEffect } from "@preact/signals";
+import { Signal, useSignal, useSignalEffect } from "@preact/signals";
 import QrCodeGenerator from "qrcode";
 import { PLACEHOLDER_URL } from "../util/constants.ts";
 import { Download } from "../components/icons/Download.tsx";
@@ -16,28 +16,38 @@ interface QrCodeFormProps {
 }
 
 export function QrCodeForm(props: QrCodeFormProps) {
-  const url = useSignal(PLACEHOLDER_URL);
+  const url = useSignal<string>("");
+
+  useSignalEffect(() => {
+    console.log(url.value);
+  });
 
   return (
     <div class={`flex gap-4 ${props.class ?? ""}`}>
-      <QrCodeImg url={url.value} class="flex-1" />
+      <QrCodeImg url={url} class="flex-1" />
       <div class="flex-1">
         <span class="text-4xl font-semibold">Generar Codigo QR</span>
         <div class="divider" />
-        <UrlForm />
+        <UrlForm url={url} />
       </div>
     </div>
   );
 }
 
-export function QrCodeImg(props: { url: string; class?: string }) {
+export function QrCodeImg(
+  props: { url: Signal<string>; class?: string },
+) {
   const error = useSignal<string | null>(null);
   const qrCodeSrc = useSignal<string | null>(null);
-  const generateQr = async () => {
+
+  const generateQr = async (url: string) => {
     try {
-      const dataUrl = await QrCodeGenerator.toString(props.url, {
-        type: "svg",
-      });
+      const dataUrl: string = await QrCodeGenerator.toString(
+        url,
+        {
+          type: "svg",
+        },
+      );
       qrCodeSrc.value = dataUrl;
       error.value = null;
     } catch (e) {
@@ -48,7 +58,10 @@ export function QrCodeImg(props: { url: string; class?: string }) {
   };
 
   useSignalEffect(() => {
-    generateQr();
+    const currentUrl = props.url.value === ""
+      ? PLACEHOLDER_URL
+      : props.url.value;
+    generateQr(currentUrl);
   });
 
   return qrCodeSrc.value
@@ -65,14 +78,13 @@ export function QrCodeImg(props: { url: string; class?: string }) {
     : null;
 }
 
-function UrlForm() {
+function UrlForm(props: { url: Signal<string> }) {
   const qrCodeData = useSignal<QrCode | null>(null);
   const error = useSignal<string | null>(null);
 
-  const downloable = useSignal(false);
+  const downloadable = useSignal(false);
 
   const handleChange = (_event: Event) => {
-    console.log("CHANGE");
     const formData = new FormData();
 
     // Get the current values of both inputs
@@ -92,15 +104,17 @@ function UrlForm() {
     );
 
     if (!success) {
-      downloable.value = false;
+      downloadable.value = false;
       error.value = issues[0].message;
       qrCodeData.value = null;
+      props.url.value = "";
       return;
     }
 
-    downloable.value = true;
+    downloadable.value = true;
     error.value = null;
     qrCodeData.value = output;
+    props.url.value = output.url;
   };
 
   const downloadCode = async () => {
@@ -109,10 +123,11 @@ function UrlForm() {
       const blobURL = URL.createObjectURL(
         await generateImageBlob(data.fileType as FileType, data.url),
       );
+      const extension = FILE_TYPES[data.fileType as FileType].extension;
 
       const linkElement = document.createElement("a");
       linkElement.href = blobURL;
-      linkElement.download = `unqr-code.${FILE_TYPES[data.fileType as FileType].extension}`;
+      linkElement.download = `unqr-code.${extension}`;
       linkElement.click();
 
       URL.revokeObjectURL(blobURL);
@@ -156,9 +171,9 @@ function UrlForm() {
         type="button"
         onClick={downloadCode}
         class={`btn btn-primary btn-sm rounded w-fit ${
-          !downloable.value ? "btn-disabled" : ""
+          !downloadable.value ? "btn-disabled" : ""
         }`}
-        disabled={!downloable.value}
+        disabled={!downloadable.value}
       >
         <Download class="size-3" />
         Descargar

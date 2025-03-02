@@ -8,10 +8,7 @@ export const FILE_TYPES = {
 };
 
 export const QrCodeSchema = v.object({
-  url: v.pipe(
-    v.string("Url no es un string"),
-    v.url("Formato de URL invalido"),
-  ),
+  url: v.string("Url no es un string"),
   fileType: v.picklist(
     Object.keys(FILE_TYPES),
     "Tipo de archivo invalido",
