@@ -23,7 +23,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
   });
 
   return (
-    <div class={`flex gap-4 ${props.class ?? ""}`}>
+    <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
       <QrCodeImg url={url} class="flex-1" />
       <div class="flex-1">
         <span class="text-4xl font-semibold">Generar Codigo QR</span>
@@ -67,7 +67,7 @@ export function QrCodeImg(
   return qrCodeSrc.value
     ? (
       <div
-        class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl svg-transparent ${
+        class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl flex justify-center items-center svg-transparent ${
           props.class ?? ""
         }`}
         // deno-lint-ignore react-no-danger
