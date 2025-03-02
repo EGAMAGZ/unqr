@@ -16,5 +16,8 @@
   },
   "css.customData": [
     ".vscode/tailwind.json"
-  ]
+  ],
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  }
 }

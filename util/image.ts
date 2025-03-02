@@ -6,11 +6,11 @@ export async function generateImageBlob(
   url: string,
 ) {
   let content;
-  console.log(fileType);
   switch (fileType) {
     case "image/svg+xml":
       content = await QrCodeGenerator.toString(url, { type: "svg" });
       break;
+    // deno-lint-ignore no-case-declarations
     default:
       content = await QrCodeGenerator.toDataURL(url, { type: fileType });
       const base64Data = content.split(",")[1];
