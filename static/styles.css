@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.svg-transparent path:first-child {
+  @apply !fill-transparent;
+}
+
+.svg-transparent svg {
+  @apply aspect-square min-w-[200px] min-h-[200px] max-w-[400px] max-h-[400px];
+}
