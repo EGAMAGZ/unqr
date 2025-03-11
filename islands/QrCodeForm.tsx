@@ -22,7 +22,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
     <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
       <QrCodeImg url={url} class="flex-1" />
       <div class="flex-1">
-        <span class="text-4xl font-semibold">Generar Codigo QR</span>
+        <span class="text-4xl font-semibold">Generate QR Code</span>
         <div class="divider" />
         <UrlForm url={url} />
       </div>
