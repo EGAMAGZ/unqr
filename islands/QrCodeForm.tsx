@@ -10,6 +10,7 @@ import QrCodeGenerator from "qrcode";
 import { PLACEHOLDER_URL } from "../util/constants.ts";
 import { Download } from "../components/icons/Download.tsx";
 import { generateImageBlob } from "../util/image.ts";
+import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 interface QrCodeFormProps {
   class?: string;
 }
@@ -53,6 +54,7 @@ export function QrCodeImg(
       : props.url.value;
     generateQr(currentUrl);
   });
+
   return qrCodeSrc.value
     ? (
       <div
@@ -149,7 +151,7 @@ function UrlForm(props: { url: Signal<string> }) {
         class={`btn btn-primary btn-sm rounded md:w-fit ${
           !downloadable.value ? "btn-disabled" : ""
         }`}
-        disabled={!downloadable.value}
+        disabled={!downloadable.value || !IS_BROWSER}
       >
         <Download class="size-4" />
         Download
