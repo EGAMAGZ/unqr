@@ -10,14 +10,11 @@ import QrCodeGenerator from "qrcode";
 import { PLACEHOLDER_URL } from "../util/constants.ts";
 import { Download } from "../components/icons/Download.tsx";
 import { generateImageBlob } from "../util/image.ts";
-
 interface QrCodeFormProps {
   class?: string;
 }
-
 export function QrCodeForm(props: QrCodeFormProps) {
   const url = useSignal<string>("");
-
   return (
     <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
       <QrCodeImg url={url} class="flex-1" />
@@ -29,13 +26,11 @@ export function QrCodeForm(props: QrCodeFormProps) {
     </div>
   );
 }
-
 export function QrCodeImg(
   props: { url: Signal<string>; class?: string },
 ) {
   const error = useSignal<string | null>(null);
   const qrCodeSrc = useSignal<string | null>(null);
-
   const generateQr = async (url: string) => {
     try {
       const dataUrl: string = await QrCodeGenerator.toString(
@@ -52,20 +47,18 @@ export function QrCodeImg(
       console.error(e);
     }
   };
-
   useSignalEffect(() => {
     const currentUrl = props.url.value === ""
       ? PLACEHOLDER_URL
       : props.url.value;
     generateQr(currentUrl);
   });
-
   return qrCodeSrc.value
     ? (
       <div
-        class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl flex justify-center items-center svg-transparent ${
+        class={`border border-slate-300 bg-neutral-200 w-full p-6 rounded-xl flex justify-center items-center qr-size qr-bg-transparent ${
           props.class ?? ""
-        }`}
+        } ${props.url.value === "" ? "qr-disabled" : ""}`}
         // deno-lint-ignore react-no-danger
         dangerouslySetInnerHTML={{ __html: qrCodeSrc.value }}
       >
@@ -73,16 +66,12 @@ export function QrCodeImg(
     )
     : null;
 }
-
 function UrlForm(props: { url: Signal<string> }) {
   const qrCodeData = useSignal<QrCode | null>(null);
   const error = useSignal<string | null>(null);
-
   const downloadable = useSignal(false);
-
   const handleChange = (_event: Event) => {
     const formData = new FormData();
-
     // Get the current values of both inputs
     const urlInput = document.querySelector(
       'input[name="url"]',
@@ -90,15 +79,12 @@ function UrlForm(props: { url: Signal<string> }) {
     const fileTypeSelect = document.querySelector(
       'select[name="fileType"]',
     ) as HTMLSelectElement;
-
     formData.append("url", urlInput.value);
     formData.append("fileType", fileTypeSelect.value);
-
     const { success, issues, output } = safeParse(
       QrCodeSchema,
       Object.fromEntries(formData.entries()),
     );
-
     if (!success) {
       downloadable.value = false;
       error.value = issues[0].message;
@@ -106,13 +92,11 @@ function UrlForm(props: { url: Signal<string> }) {
       props.url.value = "";
       return;
     }
-
     downloadable.value = true;
     error.value = null;
     qrCodeData.value = output;
     props.url.value = output.url;
   };
-
   const downloadCode = async () => {
     const data = qrCodeData.value as QrCode;
     if (data) {
@@ -120,16 +104,13 @@ function UrlForm(props: { url: Signal<string> }) {
         await generateImageBlob(data.fileType as FileType, data.url),
       );
       const extension = FILE_TYPES[data.fileType as FileType].extension;
-
       const linkElement = document.createElement("a");
       linkElement.href = blobURL;
       linkElement.download = `unqr-code.${extension}`;
       linkElement.click();
-
       URL.revokeObjectURL(blobURL);
     }
   };
-
   return (
     <div class="flex flex-col gap-4">
       <label class="form-control">
@@ -162,7 +143,6 @@ function UrlForm(props: { url: Signal<string> }) {
           )
           : null}
       </label>
-
       <button
         type="button"
         onClick={downloadCode}

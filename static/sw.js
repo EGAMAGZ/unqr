@@ -42,7 +42,7 @@ self.addEventListener("fetch", (event) => {
       })
       .catch(async (error) => {
         console.warn("Fetch failed, falling back to cache:", error);
-        
+
         const cachedResponse = await caches.match(event.request);
         if (cachedResponse) {
           return cachedResponse;

@@ -2,10 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-.svg-transparent path:first-child {
+.qr-bg-transparent path:first-child {
   @apply !fill-transparent;
 }
 
-.svg-transparent svg {
+.qr-size svg {
   @apply aspect-square min-w-[200px] min-h-[200px] max-w-[400px] max-h-[400px];
+}
+
+.qr-disabled path:nth-child(2) {
+  @apply stroke-neutral-400;
 }
