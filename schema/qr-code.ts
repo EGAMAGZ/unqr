@@ -9,22 +9,22 @@ export const FILE_TYPES = {
 
 export const QrCodeSchema = v.object({
   url: v.pipe(
-    v.string("URL must be a string."),
-    v.nonEmpty("URL is required."),
+    v.string("Please enter a valid web address."),
+    v.nonEmpty("A web address is required to generate the QR code."),
   ),
   fileType: v.picklist(
     Object.keys(FILE_TYPES),
-    "Invalid file type.",
+    "Please select a valid file format for the QR code.",
   ),
   patternColor: v.pipe(
-    v.string("Color must be a string."),
-    v.nonEmpty("Color is required."),
-    v.hexColor("Invalid color format."),
+    v.string("Please enter a valid color code for the pattern."),
+    v.nonEmpty("A pattern color is required."),
+    v.hexColor("Please enter a valid hex color code (e.g. #FFFFFF)."),
   ),
   backgroundColor: v.pipe(
-    v.string("Color must be a string."),
-    v.nonEmpty("Color is required."),
-    v.hexColor("Invalid color format."),
+    v.string("Please enter a valid color code for the background."),
+    v.nonEmpty("A background color is required."),
+    v.hexColor("Please enter a valid hex color code (e.g. #FFFFFF)."),
   ),
 });
 
