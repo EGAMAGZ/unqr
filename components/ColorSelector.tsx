@@ -29,3 +29,31 @@ export function ColorSelector(props: ColorSelectorProps) {
     </label>
   );
 }
+
+interface ColorInputFieldProps {
+  label: string;
+  name: string;
+  color: Signal<string>;
+  errorMessage: string | null;
+  onInput: (event: Event) => void;
+}
+
+export function ColorInputField(props: ColorInputFieldProps) {
+  return (
+    <label class="form-control w-fit">
+      <div class="label">
+        <span class="label-text">{props.label}</span>
+      </div>
+      <ColorSelector
+        onInput={props.onInput}
+        color={props.color}
+        name={props.name}
+      />
+      {props.errorMessage && (
+        <div class="label">
+          <span class="label-text text-error">{props.errorMessage}</span>
+        </div>
+      )}
+    </label>
+  );
+}

@@ -14,7 +14,7 @@ import { generateImageBlob } from "../util/image.ts";
 import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
-import { ColorSelector } from "../components/ColorSelector.tsx";
+import { ColorInputField } from "../components/ColorSelector.tsx";
 
 interface QrCodeFormProps {
   class?: string;
@@ -172,34 +172,6 @@ function ColorInput(props: ColorInputProps) {
         onInput={handleInput}
       />
     </div>
-  );
-}
-
-interface ColorInputFieldProps {
-  label: string;
-  name: string;
-  color: Signal<string>;
-  errorMessage: string | null;
-  onInput: (event: Event) => void;
-}
-
-function ColorInputField(props: ColorInputFieldProps) {
-  return (
-    <label class="form-control w-fit">
-      <div class="label">
-        <span class="label-text">{props.label}</span>
-      </div>
-      <ColorSelector
-        onInput={props.onInput}
-        color={props.color}
-        name={props.name}
-      />
-      {props.errorMessage && (
-        <div class="label">
-          <span class="label-text text-error">{props.errorMessage}</span>
-        </div>
-      )}
-    </label>
   );
 }
 
