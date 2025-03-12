@@ -1,4 +1,4 @@
-import { safeParse } from "@valibot/valibot";
+import * as v from "@valibot/valibot";
 import {
   FILE_TYPES,
   FileType,
@@ -12,66 +12,207 @@ import { Download } from "../components/icons/Download.tsx";
 import { generateImageBlob } from "../util/image.ts";
 import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
+import { TabNav } from "./TabNav.tsx";
 
 interface QrCodeFormProps {
   class?: string;
 }
 
-interface QrCodeImgProps {
-  url: Signal<string>;
-  class?: string;
-}
-
-interface UrlFormProps {
+interface UrlInputProps {
   url: Signal<string>;
 }
 
-function UrlInput({ onChange }: { onChange: (event: Event) => void }) {
+function UrlInput(props: UrlInputProps) {
+  const errorMessage = useSignal<string | null>(null);
+
+  const handleInput = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    props.url.value = target.value;
+
+    const { success, issues } = v.safeParse(v.pick(QrCodeSchema, ["url"]), {
+      url: props.url.value,
+    });
+
+    if (!success) {
+      errorMessage.value = issues[0].message;
+    } else {
+      errorMessage.value = null;
+    }
+  };
   return (
-    <input
-      type="text"
-      class="input input-primary input-bordered input-sm join-item flex-1"
-      name="url"
-      onInput={onChange}
-      placeholder="https://example.com"
-      aria-label="Enter URL for QR Code"
-    />
+    <label class="form-control w-full max-w-lg">
+      <div class="label">
+        <span class="label-text">Enter or paste the URL:</span>
+        <span class="label-text-alt">Your QR Code will open the URL</span>
+      </div>
+      <input
+        type="text"
+        name="url"
+        class="input input-bordered input-sm input-primary w-full max-w-lg"
+        value={props.url.value}
+        onInput={handleInput}
+      />
+      {errorMessage.value && (
+        <div class="label">
+          <span class="label-text text-error">{errorMessage.value}</span>
+        </div>
+      )}
+    </label>
   );
 }
 
-function FileTypeSelect({ onChange }: { onChange: (event: Event) => void }) {
+interface FileTypeSelectProps {
+  fileType: Signal<FileType>;
+}
+
+function FileTypeSelect(props: FileTypeSelectProps) {
+  const errorMessage = useSignal<string | null>(null);
+
+  const handleChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    props.fileType.value = target.value as FileType;
+
+    const { success, issues } = v.safeParse(
+      v.pick(QrCodeSchema, ["fileType"]),
+      {
+        fileType: props.fileType.value,
+      },
+    );
+
+    if (!success) {
+      errorMessage.value = issues[0].message;
+    } else {
+      errorMessage.value = null;
+    }
+  };
+
   return (
-    <select
-      class="select select-primary select-sm join-item bg-primary text-primary-content"
-      name="fileType"
-      onChange={onChange}
-      aria-label="Select file type for QR Code"
-    >
-      {Object.entries(FILE_TYPES).map(([key, value]) => (
-        <option key={key} value={key}>{value.label}</option>
-      ))}
-    </select>
+    <label class="form-control w-full max-w-ss">
+      <div class="label">
+        <span class="label-text">File format:</span>
+      </div>
+      <select
+        class="select select-primary select-sm w-full max-w-xs"
+        name="fileType"
+        aria-label="Select file type for QR Code"
+        value={props.fileType.value}
+        onChange={handleChange}
+      >
+        {Object.entries(FILE_TYPES).map(([key, value]) => (
+          <option key={key} value={key}>{value.label}</option>
+        ))}
+      </select>
+
+      {errorMessage.value && (
+        <div class="label">
+          <span class="label-text text-error">{errorMessage.value}</span>
+        </div>
+      )}
+    </label>
   );
 }
 
+interface ColorInputProps {
+  color: Signal<string>;
+}
+
+function ColorInput(props: ColorInputProps) {
+  const errorMessage = useSignal<string | null>(null);
+
+  const handleChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    props.color.value = target.value;
+
+    const { success, issues } = v.safeParse(v.pick(QrCodeSchema, ["color"]), {
+      color: props.color.value,
+    });
+
+    if (!success) {
+      errorMessage.value = issues[0].message;
+    } else {
+      errorMessage.value = null;
+    }
+  };
+
+  return (
+    <label class="form-control">
+      <div class="label">
+        <span class="label-text">Color:</span>
+      </div>
+      <input
+        type="color"
+        class="input input-bordered input-sm input-primary w-full max-w-lg"
+        value={props.color.value}
+        onInput={handleChange}
+      />
+      {errorMessage.value && (
+        <div class="label">
+          <span class="label-text text-error">{errorMessage.value}</span>
+        </div>
+      )}
+    </label>
+  );
+}
 export function QrCodeForm(props: QrCodeFormProps) {
-  const url = useSignal<string>("");
+  const url = useSignal("");
+  const fileType = useSignal<FileType>("image/png");
+  const color = useSignal("#000000");
+  const downloadable = useSignal(false);
+
+  useSignalEffect(() => {
+    const { success } = v.safeParse(QrCodeSchema, {
+      url: url.value,
+      fileType: fileType.value,
+      color: color.value,
+    });
+    downloadable.value = success;
+  });
+
   return (
     <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
       <QrCodeImage url={url} class="flex-1" />
-      <div class="flex-1">
+      <div class="flex-1" aria-label="QR Code Form">
         <span class="text-4xl font-semibold">Generate QR Code</span>
         <div class="divider" />
-        <UrlForm url={url} />
+        <div class="flex flex-col gap-4">
+          <TabNav
+            tabs={[
+              { label: "Link", id: "url", component: <UrlInput url={url} /> },
+              {
+                label: "Color",
+                id: "color",
+                component: <ColorInput color={color} />,
+              },
+              {
+                label: "File Format",
+                id: "file",
+                component: <FileTypeSelect fileType={fileType} />,
+              },
+            ]}
+          />
+          <button
+            type="button"
+            class={`btn btn-primary btn-sm rounded md:w-fit`}
+            disabled={!downloadable.value || !IS_BROWSER}
+            aria-disabled={!IS_BROWSER}
+          >
+            <Download class="size-4" />
+            Download
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-export function QrCodeImage({ url, class: className }: QrCodeImgProps) {
+interface QrCodeImageProps {
+  url: Signal<string>;
+  class?: string;
+}
+
+function QrCodeImage(props: QrCodeImageProps) {
   const error = useSignal<string | null>(null);
   const qrCodeSrc = useSignal<string | null>(null);
-
   const generateQr = async (url: string) => {
     try {
       const dataUrl = await QrCodeGenerator.toString(url, { type: "svg" });
@@ -83,9 +224,10 @@ export function QrCodeImage({ url, class: className }: QrCodeImgProps) {
       console.error("QR Code generation error:", e);
     }
   };
-
   useSignalEffect(() => {
-    const currentUrl = url.value === "" ? PLACEHOLDER_URL : url.value;
+    const currentUrl = props.url.value === ""
+      ? PLACEHOLDER_URL
+      : props.url.value;
     generateQr(currentUrl);
   });
 
@@ -94,95 +236,8 @@ export function QrCodeImage({ url, class: className }: QrCodeImgProps) {
   return (
     <QrCodeImageContainer
       src={qrCodeSrc.value}
-      class={className}
-      isPlaceholder={url.value === ""}
+      class={props.class}
+      isPlaceholder={props.url.value === "" || error.value !== null}
     />
-  );
-}
-
-function UrlForm({ url }: UrlFormProps) {
-  const qrCodeData = useSignal<QrCode | null>(null);
-  const error = useSignal<string | null>(null);
-  const downloadable = useSignal(false);
-
-  const handleChange = () => {
-    const formData = new FormData();
-    const urlInput = document.querySelector(
-      'input[name="url"]',
-    ) as HTMLInputElement;
-    const fileTypeSelect = document.querySelector(
-      'select[name="fileType"]',
-    ) as HTMLSelectElement;
-
-    formData.append("url", urlInput.value);
-    formData.append("fileType", fileTypeSelect.value);
-
-    const { success, issues, output } = safeParse(
-      QrCodeSchema,
-      Object.fromEntries(formData.entries()),
-    );
-
-    if (!success) {
-      downloadable.value = false;
-      error.value = issues[0].message || "Invalid input";
-      qrCodeData.value = null;
-      url.value = "";
-      return;
-    }
-
-    downloadable.value = true;
-    error.value = null;
-    qrCodeData.value = output;
-    url.value = output.url;
-  };
-
-  const downloadCode = async () => {
-    if (!qrCodeData.value) return;
-
-    const { fileType, url: qrUrl } = qrCodeData.value;
-    const extension = FILE_TYPES[fileType as FileType].extension;
-    const blobURL = URL.createObjectURL(
-      await generateImageBlob(fileType as FileType, qrUrl),
-    );
-
-    const linkElement = document.createElement("a");
-    linkElement.href = blobURL;
-    linkElement.download = `unqr-code.${extension}`;
-    linkElement.click();
-    URL.revokeObjectURL(blobURL);
-  };
-
-  return (
-    <div class="flex flex-col gap-4">
-      <label class="form-control">
-        <div class="label">
-          <span class="label-text">Enter or paste the URL:</span>
-          <span class="label-text-alt">Your QR Code will open the URL</span>
-        </div>
-        <div class="join flex">
-          <UrlInput onChange={handleChange} />
-          <FileTypeSelect onChange={handleChange} />
-        </div>
-        {error.value && (
-          <div class="label">
-            <span class="label-text text-red-400" role="alert">
-              {error.value}
-            </span>
-          </div>
-        )}
-      </label>
-      <button
-        type="button"
-        onClick={downloadCode}
-        class={`btn btn-primary btn-sm rounded md:w-fit ${
-          !downloadable.value ? "btn-disabled" : ""
-        }`}
-        disabled={!downloadable.value || !IS_BROWSER}
-        aria-disabled={!downloadable.value || !IS_BROWSER}
-      >
-        <Download class="size-4" />
-        Download
-      </button>
-    </div>
   );
 }

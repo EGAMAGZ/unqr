@@ -16,6 +16,11 @@ export const QrCodeSchema = v.object({
     Object.keys(FILE_TYPES),
     "Invalid file type.",
   ),
+  color: v.pipe(
+    v.string("Color must be a string."),
+    v.nonEmpty("Color is required."),
+    v.hexColor("Invalid color format."),
+  ),
 });
 
 export type QrCode = v.InferInput<typeof QrCodeSchema>;
