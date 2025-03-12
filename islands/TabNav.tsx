@@ -9,14 +9,16 @@ type Tab = {
 
 interface TabNavProps {
   tabs: Tab[];
+  class?: string;
 }
 
-export function TabNav({ tabs }: TabNavProps) {
-  const activeTab = useSignal(tabs[0].label);
+export function TabNav(props: TabNavProps) {
+  const activeTab = useSignal(props.tabs[0].label);
+
   return (
-    <div class="grid">
-      <div role="tablist" class="tabs tabs-boxed w-fit">
-        {tabs.map((tab) => (
+    <div class={`grid ${props.class ?? ""}`}>
+      <div role="tablist" class="tabs tabs-boxed">
+        {props.tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
@@ -28,7 +30,9 @@ export function TabNav({ tabs }: TabNavProps) {
           </button>
         ))}
       </div>
-      {tabs.map((tab) => tab.label === activeTab.value ? tab.component : null)}
+      {props.tabs.map((tab) =>
+        tab.label === activeTab.value ? tab.component : null
+      )}
     </div>
   );
 }
