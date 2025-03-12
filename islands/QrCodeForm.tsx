@@ -8,7 +8,7 @@ import { generateImageBlob } from "../util/image.ts";
 import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
-import { ColorSelector } from "./ColorInput.tsx";
+import { ColorSelector } from "../components/ColorInput.tsx";
 
 interface QrCodeFormProps {
   class?: string;
@@ -160,6 +160,7 @@ function ColorInput(props: ColorInputProps) {
         <ColorSelector
           onInput={handleInputPattern}
           color={props.patternColor}
+          class="inline-flex"
         />
         {patternColorErrorMessage.value && (
           <div class="label">
@@ -223,6 +224,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
       linkElement.click();
 
       URL.revokeObjectURL(blobURL);
+      linkElement.remove();
     }
   };
 
