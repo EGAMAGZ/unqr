@@ -168,6 +168,22 @@ export function QrCodeForm(props: QrCodeFormProps) {
     downloadable.value = success;
   });
 
+  const downloadCode = async () => {
+    if (url.value) {
+      const blobURL = URL.createObjectURL(
+        await generateImageBlob(fileType.value, url.value),
+      );
+      const extension = FILE_TYPES[fileType.value].extension;
+
+      const linkElement = document.createElement("a");
+      linkElement.href = blobURL;
+      linkElement.download = `unqr-code.${extension}`;
+      linkElement.click();
+
+      URL.revokeObjectURL(blobURL);
+    }
+  };
+
   return (
     <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
       <QrCodeImage url={url} class="flex-1" />
@@ -195,6 +211,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
             class={`btn btn-primary btn-sm rounded md:w-fit`}
             disabled={!downloadable.value || !IS_BROWSER}
             aria-disabled={!IS_BROWSER}
+            onClick={downloadCode}
           >
             <Download class="size-4" />
             Download
