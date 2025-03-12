@@ -153,14 +153,13 @@ function ColorInput(props: ColorInputProps) {
 
   return (
     <div class="flex flex-col gap-4">
-      <label class="form-control">
+      <label class="form-control w-fit">
         <div class="label">
           <span class="label-text">Pattern Color:</span>
         </div>
         <ColorSelector
           onInput={handleInputPattern}
           color={props.patternColor}
-          class="inline-flex"
         />
         {patternColorErrorMessage.value && (
           <div class="label">
@@ -170,7 +169,7 @@ function ColorInput(props: ColorInputProps) {
           </div>
         )}
       </label>
-      <label class="form-control">
+      <label class="form-control w-fit">
         <div class="label">
           <span class="label-text">Background Color:</span>
         </div>
