@@ -1,10 +1,5 @@
 import * as v from "@valibot/valibot";
-import {
-  FILE_TYPES,
-  FileType,
-  QrCode,
-  QrCodeSchema,
-} from "../schema/qr-code.ts";
+import { FILE_TYPES, FileType, QrCodeSchema } from "../schema/qr-code.ts";
 import { Signal, useSignal, useSignalEffect } from "@preact/signals";
 import QrCodeGenerator from "qrcode";
 import { PLACEHOLDER_URL } from "../util/constants.ts";
@@ -13,6 +8,7 @@ import { generateImageBlob } from "../util/image.ts";
 import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
+import { ColorSelector } from "./ColorInput.tsx";
 
 interface QrCodeFormProps {
   class?: string;
@@ -113,57 +109,98 @@ function FileTypeSelect(props: FileTypeSelectProps) {
 }
 
 interface ColorInputProps {
-  color: Signal<string>;
+  patternColor: Signal<string>;
+  backgroundColor: Signal<string>;
 }
 
 function ColorInput(props: ColorInputProps) {
-  const errorMessage = useSignal<string | null>(null);
+  const patternColorErrorMessage = useSignal<string | null>(null);
+  const backgroundColorErrorMessage = useSignal<string | null>(null);
 
-  const handleChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    props.color.value = target.value;
+  const handleInputPattern = (color: string) => {
+    props.patternColor.value = color;
 
-    const { success, issues } = v.safeParse(v.pick(QrCodeSchema, ["color"]), {
-      color: props.color.value,
-    });
+    const { success, issues } = v.safeParse(
+      v.pick(QrCodeSchema, ["patternColor"]),
+      {
+        patternColor: props.patternColor.value,
+      },
+    );
 
     if (!success) {
-      errorMessage.value = issues[0].message;
+      patternColorErrorMessage.value = issues[0].message;
     } else {
-      errorMessage.value = null;
+      patternColorErrorMessage.value = null;
+    }
+  };
+
+  const handleInputBackground = (color: string) => {
+    props.backgroundColor.value = color;
+
+    const { success, issues } = v.safeParse(
+      v.pick(QrCodeSchema, ["backgroundColor"]),
+      {
+        backgroundColor: props.backgroundColor.value,
+      },
+    );
+
+    if (!success) {
+      backgroundColorErrorMessage.value = issues[0].message;
+    } else {
+      backgroundColorErrorMessage.value = null;
     }
   };
 
   return (
-    <label class="form-control">
-      <div class="label">
-        <span class="label-text">Color:</span>
-      </div>
-      <input
-        type="color"
-        class="input input-bordered input-sm input-primary w-full max-w-lg"
-        value={props.color.value}
-        onInput={handleChange}
-      />
-      {errorMessage.value && (
+    <div class="flex flex-col gap-4">
+      <label class="form-control">
         <div class="label">
-          <span class="label-text text-error">{errorMessage.value}</span>
+          <span class="label-text">Pattern Color:</span>
         </div>
-      )}
-    </label>
+        <ColorSelector
+          onInput={handleInputPattern}
+          color={props.patternColor}
+        />
+        {patternColorErrorMessage.value && (
+          <div class="label">
+            <span class="label-text text-error">
+              {patternColorErrorMessage.value}
+            </span>
+          </div>
+        )}
+      </label>
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">Background Color:</span>
+        </div>
+        <ColorSelector
+          onInput={handleInputBackground}
+          color={props.backgroundColor}
+        />
+        {backgroundColorErrorMessage.value && (
+          <div class="label">
+            <span class="label-text text-error">
+              {backgroundColorErrorMessage.value}
+            </span>
+          </div>
+        )}
+      </label>
+    </div>
   );
 }
 export function QrCodeForm(props: QrCodeFormProps) {
   const url = useSignal("");
   const fileType = useSignal<FileType>("image/png");
-  const color = useSignal("#000000");
+  const patternColor = useSignal("#000000");
+  const backgroundColor = useSignal("#ffffff");
   const downloadable = useSignal(false);
 
   useSignalEffect(() => {
     const { success } = v.safeParse(QrCodeSchema, {
       url: url.value,
       fileType: fileType.value,
-      color: color.value,
+      patternColor: patternColor.value,
+      backgroundColor: backgroundColor.value,
     });
     downloadable.value = success;
   });
@@ -171,7 +208,12 @@ export function QrCodeForm(props: QrCodeFormProps) {
   const downloadCode = async () => {
     if (url.value) {
       const blobURL = URL.createObjectURL(
-        await generateImageBlob(fileType.value, url.value),
+        await generateImageBlob(
+          fileType.value,
+          url.value,
+          patternColor.value,
+          backgroundColor.value,
+        ),
       );
       const extension = FILE_TYPES[fileType.value].extension;
 
@@ -186,7 +228,12 @@ export function QrCodeForm(props: QrCodeFormProps) {
 
   return (
     <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
-      <QrCodeImage url={url} class="flex-1" />
+      <QrCodeImage
+        url={url}
+        patternColor={patternColor}
+        backgroundColor={backgroundColor}
+        class="flex-1"
+      />
       <div class="flex-1" aria-label="QR Code Form">
         <span class="text-4xl font-semibold">Generate QR Code</span>
         <div class="divider" />
@@ -197,7 +244,12 @@ export function QrCodeForm(props: QrCodeFormProps) {
               {
                 label: "Color",
                 id: "color",
-                component: <ColorInput color={color} />,
+                component: (
+                  <ColorInput
+                    patternColor={patternColor}
+                    backgroundColor={backgroundColor}
+                  />
+                ),
               },
               {
                 label: "File Format",
@@ -224,6 +276,8 @@ export function QrCodeForm(props: QrCodeFormProps) {
 
 interface QrCodeImageProps {
   url: Signal<string>;
+  patternColor: Signal<string>;
+  backgroundColor: Signal<string>;
   class?: string;
 }
 
@@ -232,7 +286,13 @@ function QrCodeImage(props: QrCodeImageProps) {
   const qrCodeSrc = useSignal<string | null>(null);
   const generateQr = async (url: string) => {
     try {
-      const dataUrl = await QrCodeGenerator.toString(url, { type: "svg" });
+      const dataUrl = await QrCodeGenerator.toString(url, {
+        type: "svg",
+        color: {
+          dark: props.patternColor.value,
+          light: props.backgroundColor.value,
+        },
+      });
       qrCodeSrc.value = dataUrl;
       error.value = null;
     } catch (e) {
