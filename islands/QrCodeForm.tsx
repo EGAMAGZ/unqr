@@ -230,6 +230,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
         <div class="divider" />
         <div class="flex flex-col gap-4">
           <TabNav
+            class="max-w-lg"
             tabs={[
               { label: "Link", id: "url", component: <UrlInput url={url} /> },
               {
