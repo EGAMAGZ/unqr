@@ -1,16 +1,7 @@
-# Fresh project
+# UNQR
+A client-side QR code generator with PWA capabilities, designed to function offline.
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+## Motivation
+Many QR code tools either require users to log in, redirect to their services, or display intrusive ads. Additionally, many of these tools don't support offline usage.
 
-### Usage
-
-Make sure to install Deno: https://deno.land/manual/getting_started/installation
-
-Then start the project:
-
-```
-deno task start
-```
-
-This will watch the project directory and restart as necessary.
+The project’s name is inspired by [Unduck](https://github.com/t3dotgg/unduck), a project by [Theogg](https://www.youtube.com/@t3dotgg).
