@@ -2,17 +2,12 @@ import { Signal } from "@preact/signals";
 
 interface ColorSelectorProps {
   color: Signal<string>;
-  onInput: (color: string) => void;
+  onInput: (event: Event) => void;
+  name: string;
   class?: string;
 }
 
 export function ColorSelector(props: ColorSelectorProps) {
-  const handleInput = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    props.color.value = target.value;
-    props.onInput(target.value);
-  };
-
   return (
     <label
       class={`size-16 relative bg-white border border-primary rounded inline-flex justify-center items-center ${
@@ -27,8 +22,9 @@ export function ColorSelector(props: ColorSelectorProps) {
       <input
         type="color"
         value={props.color.value}
-        onInput={handleInput}
+        onInput={props.onInput}
         class="absolute inset-0 w-full h-full invisible"
+        name={props.name}
       />
     </label>
   );

@@ -8,7 +8,8 @@ import { generateImageBlob } from "../util/image.ts";
 import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
-import { ColorSelector } from "../components/ColorInput.tsx";
+import { ColorSelector } from "../components/ColorSelector.tsx";
+import { is } from "@valibot/valibot";
 
 interface QrCodeFormProps {
   class?: string;
@@ -117,37 +118,43 @@ function ColorInput(props: ColorInputProps) {
   const patternColorErrorMessage = useSignal<string | null>(null);
   const backgroundColorErrorMessage = useSignal<string | null>(null);
 
-  const handleInputPattern = (color: string) => {
-    props.patternColor.value = color;
+  const handleInput = (event: Event) => {
+    const target = event.target as HTMLInputElement;
 
-    const { success, issues } = v.safeParse(
-      v.pick(QrCodeSchema, ["patternColor"]),
+    if (target.name === "patternColor") {
+      props.patternColor.value = target.value;
+    }
+
+    if (target.name === "backgroundColor") {
+      props.backgroundColor.value = target.value;
+    }
+    const { issues, success } = v.safeParse(
+      v.pipe(
+        v.pick(QrCodeSchema, ["backgroundColor", "patternColor"]),
+        v.forward(
+          v.check(
+            ({ backgroundColor, patternColor }) =>
+              backgroundColor !== patternColor,
+            "Pattern color and background color cannot be the same",
+          ),
+          ["backgroundColor"],
+        ),
+      ),
       {
         patternColor: props.patternColor.value,
-      },
-    );
-
-    if (!success) {
-      patternColorErrorMessage.value = issues[0].message;
-    } else {
-      patternColorErrorMessage.value = null;
-    }
-  };
-
-  const handleInputBackground = (color: string) => {
-    props.backgroundColor.value = color;
-
-    const { success, issues } = v.safeParse(
-      v.pick(QrCodeSchema, ["backgroundColor"]),
-      {
         backgroundColor: props.backgroundColor.value,
       },
     );
 
     if (!success) {
-      backgroundColorErrorMessage.value = issues[0].message;
-    } else {
-      backgroundColorErrorMessage.value = null;
+      issues.forEach((issue) => {
+        const path = v.getDotPath(issue);
+        if (path === "backgroundColor") {
+          backgroundColorErrorMessage.value = issue.message;
+        } else {
+          patternColorErrorMessage.value = issue.message;
+        }
+      });
     }
   };
 
@@ -158,8 +165,9 @@ function ColorInput(props: ColorInputProps) {
           <span class="label-text">Pattern Color:</span>
         </div>
         <ColorSelector
-          onInput={handleInputPattern}
+          onInput={handleInput}
           color={props.patternColor}
+          name="patternColor"
         />
         {patternColorErrorMessage.value && (
           <div class="label">
@@ -174,8 +182,9 @@ function ColorInput(props: ColorInputProps) {
           <span class="label-text">Background Color:</span>
         </div>
         <ColorSelector
-          onInput={handleInputBackground}
+          onInput={handleInput}
           color={props.backgroundColor}
+          name="backgroundColor"
         />
         {backgroundColorErrorMessage.value && (
           <div class="label">
@@ -196,12 +205,21 @@ export function QrCodeForm(props: QrCodeFormProps) {
   const downloadable = useSignal(false);
 
   useSignalEffect(() => {
-    const { success } = v.safeParse(QrCodeSchema, {
-      url: url.value,
-      fileType: fileType.value,
-      patternColor: patternColor.value,
-      backgroundColor: backgroundColor.value,
-    });
+    const { success } = v.safeParse(
+      v.pipe(
+        QrCodeSchema,
+        v.forward(
+          v.check(({ backgroundColor: bg, patternColor: ptrn }) => ptrn !== bg),
+          ["backgroundColor"],
+        ),
+      ),
+      {
+        url: url.value,
+        fileType: fileType.value,
+        patternColor: patternColor.value,
+        backgroundColor: backgroundColor.value,
+      },
+    );
     downloadable.value = success;
   });
 
