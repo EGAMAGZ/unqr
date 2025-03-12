@@ -32,6 +32,16 @@ export type QrCode = v.InferInput<typeof QrCodeSchema>;
 
 export type FileType = keyof typeof FILE_TYPES;
 
+export const QrCodeWithColorValidationSchema = v.pipe(
+  QrCodeSchema,
+  v.forward(
+    v.check(({ backgroundColor, patternColor }) =>
+      patternColor !== backgroundColor
+    ),
+    ["backgroundColor"],
+  ),
+);
+
 export const validateColors = (patternColor: string, backgroundColor: string) =>
   v.safeParse(
     v.pipe(

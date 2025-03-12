@@ -3,6 +3,7 @@ import {
   FILE_TYPES,
   FileType,
   QrCodeSchema,
+  QrCodeWithColorValidationSchema,
   validateColors,
 } from "../schema/qr-code.ts";
 import { Signal, useSignal, useSignalEffect } from "@preact/signals";
@@ -14,7 +15,6 @@ import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
 import { ColorSelector } from "../components/ColorSelector.tsx";
-import { is } from "@valibot/valibot";
 
 interface QrCodeFormProps {
   class?: string;
@@ -212,13 +212,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
 
   useSignalEffect(() => {
     const { success } = v.safeParse(
-      v.pipe(
-        QrCodeSchema,
-        v.forward(
-          v.check(({ backgroundColor: bg, patternColor: ptrn }) => ptrn !== bg),
-          ["backgroundColor"],
-        ),
-      ),
+      QrCodeWithColorValidationSchema,
       {
         url: url.value,
         fileType: fileType.value,
