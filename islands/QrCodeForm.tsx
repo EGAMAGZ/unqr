@@ -1,5 +1,10 @@
 import * as v from "@valibot/valibot";
-import { FILE_TYPES, FileType, QrCodeSchema } from "../schema/qr-code.ts";
+import {
+  FILE_TYPES,
+  FileType,
+  QrCodeSchema,
+  validateColors,
+} from "../schema/qr-code.ts";
 import { Signal, useSignal, useSignalEffect } from "@preact/signals";
 import QrCodeGenerator from "qrcode";
 import { PLACEHOLDER_URL } from "../util/constants.ts";
@@ -120,30 +125,17 @@ function ColorInput(props: ColorInputProps) {
 
   const handleInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
+    const isPatternColor = target.name === "patternColor";
 
-    if (target.name === "patternColor") {
+    if (isPatternColor) {
       props.patternColor.value = target.value;
-    }
-
-    if (target.name === "backgroundColor") {
+    } else {
       props.backgroundColor.value = target.value;
     }
-    const { issues, success } = v.safeParse(
-      v.pipe(
-        v.pick(QrCodeSchema, ["backgroundColor", "patternColor"]),
-        v.forward(
-          v.check(
-            ({ backgroundColor, patternColor }) =>
-              backgroundColor !== patternColor,
-            "Pattern color and background color cannot be the same",
-          ),
-          ["backgroundColor"],
-        ),
-      ),
-      {
-        patternColor: props.patternColor.value,
-        backgroundColor: props.backgroundColor.value,
-      },
+
+    const { issues, success } = validateColors(
+      props.patternColor.value,
+      props.backgroundColor.value,
     );
 
     if (!success) {
@@ -151,52 +143,66 @@ function ColorInput(props: ColorInputProps) {
         const path = v.getDotPath(issue);
         if (path === "backgroundColor") {
           backgroundColorErrorMessage.value = issue.message;
+          patternColorErrorMessage.value = null;
         } else {
           patternColorErrorMessage.value = issue.message;
+          backgroundColorErrorMessage.value = null;
         }
       });
+    } else {
+      patternColorErrorMessage.value = null;
+      backgroundColorErrorMessage.value = null;
     }
   };
 
   return (
     <div class="flex flex-col gap-4">
-      <label class="form-control w-fit">
-        <div class="label">
-          <span class="label-text">Pattern Color:</span>
-        </div>
-        <ColorSelector
-          onInput={handleInput}
-          color={props.patternColor}
-          name="patternColor"
-        />
-        {patternColorErrorMessage.value && (
-          <div class="label">
-            <span class="label-text text-error">
-              {patternColorErrorMessage.value}
-            </span>
-          </div>
-        )}
-      </label>
-      <label class="form-control w-fit">
-        <div class="label">
-          <span class="label-text">Background Color:</span>
-        </div>
-        <ColorSelector
-          onInput={handleInput}
-          color={props.backgroundColor}
-          name="backgroundColor"
-        />
-        {backgroundColorErrorMessage.value && (
-          <div class="label">
-            <span class="label-text text-error">
-              {backgroundColorErrorMessage.value}
-            </span>
-          </div>
-        )}
-      </label>
+      <ColorInputField
+        label="Pattern Color"
+        name="patternColor"
+        color={props.patternColor}
+        errorMessage={patternColorErrorMessage.value}
+        onInput={handleInput}
+      />
+      <ColorInputField
+        label="Background Color"
+        name="backgroundColor"
+        color={props.backgroundColor}
+        errorMessage={backgroundColorErrorMessage.value}
+        onInput={handleInput}
+      />
     </div>
   );
 }
+
+interface ColorInputFieldProps {
+  label: string;
+  name: string;
+  color: Signal<string>;
+  errorMessage: string | null;
+  onInput: (event: Event) => void;
+}
+
+function ColorInputField(props: ColorInputFieldProps) {
+  return (
+    <label class="form-control w-fit">
+      <div class="label">
+        <span class="label-text">{props.label}</span>
+      </div>
+      <ColorSelector
+        onInput={props.onInput}
+        color={props.color}
+        name={props.name}
+      />
+      {props.errorMessage && (
+        <div class="label">
+          <span class="label-text text-error">{props.errorMessage}</span>
+        </div>
+      )}
+    </label>
+  );
+}
+
 export function QrCodeForm(props: QrCodeFormProps) {
   const url = useSignal("");
   const fileType = useSignal<FileType>("image/png");

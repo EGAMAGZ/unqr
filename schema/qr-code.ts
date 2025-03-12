@@ -31,3 +31,22 @@ export const QrCodeSchema = v.object({
 export type QrCode = v.InferInput<typeof QrCodeSchema>;
 
 export type FileType = keyof typeof FILE_TYPES;
+
+export const validateColors = (patternColor: string, backgroundColor: string) =>
+  v.safeParse(
+    v.pipe(
+      v.pick(QrCodeSchema, ["backgroundColor", "patternColor"]),
+      v.forward(
+        v.check(
+          ({ backgroundColor, patternColor }) =>
+            backgroundColor !== patternColor,
+          "Pattern color and background color cannot be the same",
+        ),
+        ["backgroundColor"],
+      ),
+    ),
+    {
+      patternColor,
+      backgroundColor,
+    },
+  );
