@@ -40,7 +40,7 @@ interface ColorInputFieldProps {
 
 export function ColorInputField(props: ColorInputFieldProps) {
   return (
-    <label class="form-control w-fit">
+    <label class="form-control w-fit inline-flex items-center">
       <div class="label">
         <span class="label-text">{props.label}</span>
       </div>
