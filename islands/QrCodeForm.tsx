@@ -6,15 +6,21 @@ import {
   QrCodeWithColorValidationSchema,
   validateColors,
 } from "../schema/qr-code.ts";
-import { Signal, useSignal, useSignalEffect } from "@preact/signals";
+import {
+  Signal,
+  useComputed,
+  useSignal,
+  useSignalEffect,
+} from "@preact/signals";
 import QrCodeGenerator from "qrcode";
-import { PLACEHOLDER_URL } from "../util/constants.ts";
+import { DEFAULT_FILE_NAME, PLACEHOLDER_URL } from "../util/constants.ts";
 import { Download } from "../components/icons/Download.tsx";
-import { generateImageBlob } from "../util/image.ts";
+import { generateImageBlob, generateImageFile } from "../util/image.ts";
 import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
 import { ColorInputField } from "../components/ColorSelector.tsx";
+import { ShareButton } from "./ShareButton.tsx";
 
 interface QrCodeFormProps {
   class?: string;
@@ -196,26 +202,35 @@ export function QrCodeForm(props: QrCodeFormProps) {
   });
 
   const downloadCode = async () => {
-    if (url.value) {
-      const blobURL = URL.createObjectURL(
-        await generateImageBlob(
-          fileType.value,
-          url.value,
-          patternColor.value,
-          backgroundColor.value,
-        ),
-      );
-      const extension = FILE_TYPES[fileType.value].extension;
+    const blobURL = URL.createObjectURL(
+      await generateImageBlob(
+        fileType.value,
+        url.value,
+        patternColor.value,
+        backgroundColor.value,
+      ),
+    );
+    const extension = FILE_TYPES[fileType.value].extension;
 
-      const linkElement = document.createElement("a");
-      linkElement.href = blobURL;
-      linkElement.download = `unqr-code.${extension}`;
-      linkElement.click();
+    const linkElement = document.createElement("a");
+    linkElement.href = blobURL;
+    linkElement.download = `${DEFAULT_FILE_NAME}.${extension}`;
+    linkElement.click();
 
-      URL.revokeObjectURL(blobURL);
-      linkElement.remove();
-    }
+    URL.revokeObjectURL(blobURL);
+    linkElement.remove();
   };
+
+  const handleShare = async () =>
+    generateImageFile(
+      await generateImageBlob(
+        fileType.value,
+        url.value,
+        patternColor.value,
+        backgroundColor.value,
+      ),
+      FILE_TYPES[fileType.value].extension,
+    );
 
   return (
     <div class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}>
@@ -250,16 +265,27 @@ export function QrCodeForm(props: QrCodeFormProps) {
               },
             ]}
           />
-          <button
-            type="button"
-            class={`btn btn-primary btn-sm rounded md:w-fit`}
-            disabled={!downloadable.value || !IS_BROWSER}
-            aria-disabled={!IS_BROWSER}
-            onClick={downloadCode}
-          >
-            <Download class="size-4" />
-            Download
-          </button>
+          <div class="flex gap-4 justify-start">
+            <button
+              type="button"
+              class="btn btn-primary btn-sm rounded md:w-fit"
+              disabled={!downloadable.value || !IS_BROWSER}
+              aria-disabled={!IS_BROWSER}
+              onClick={downloadCode}
+            >
+              <Download class="size-4" />
+              Download
+            </button>
+            {
+              // @ts-ignore Validates the API existence
+              navigator.canShare && (
+                <ShareButton
+                  onClick={handleShare}
+                  disabled={!downloadable.value || !IS_BROWSER}
+                />
+              )
+            }
+          </div>
         </div>
       </div>
     </div>
@@ -276,6 +302,10 @@ interface QrCodeImageProps {
 function QrCodeImage(props: QrCodeImageProps) {
   const error = useSignal<string | null>(null);
   const qrCodeSrc = useSignal<string | null>(null);
+  const isPlaceHolder = useComputed(() =>
+    props.url.value === "" || error.value !== null
+  );
+
   const generateQr = async (url: string) => {
     try {
       const dataUrl = await QrCodeGenerator.toString(url, {
@@ -306,7 +336,7 @@ function QrCodeImage(props: QrCodeImageProps) {
     <QrCodeImageContainer
       src={qrCodeSrc.value}
       class={props.class}
-      isPlaceholder={props.url.value === "" || error.value !== null}
+      isPlaceholder={isPlaceHolder.value}
     />
   );
 }
