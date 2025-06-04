@@ -162,7 +162,7 @@ function ColorInput(props: ColorInputProps) {
   };
 
   return (
-    <div class="flex flex-col gap-4">
+    <div class="flex gap-4">
       <ColorInputField
         label="Pattern Color"
         name="patternColor"
@@ -276,15 +276,10 @@ export function QrCodeForm(props: QrCodeFormProps) {
               <Download class="size-4" />
               Download
             </button>
-            {
-              // @ts-ignore Validates the API existence
-              navigator.canShare && (
-                <ShareButton
-                  onClick={handleShare}
-                  disabled={!downloadable.value || !IS_BROWSER}
-                />
-              )
-            }
+            <ShareButton
+              onClick={handleShare}
+              disabled={!downloadable.value || !IS_BROWSER}
+            />
           </div>
         </div>
       </div>

@@ -16,6 +16,9 @@ export function ShareButton(props: Props) {
       console.error(error);
     }
   };
+
+  if(!navigator.canShare) return null;
+
   return (
     <button
       type="button"
