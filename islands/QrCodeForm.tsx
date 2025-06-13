@@ -19,7 +19,7 @@ import { generateImageBlob, generateImageFile } from "../util/image.ts";
 import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
-import { ColorInputField } from "../components/ColorSelector.tsx";
+import { ColorInputField } from "./ColorInputField.tsx";
 import { ShareButton } from "./ShareButton.tsx";
 
 interface QrCodeFormProps {
@@ -125,7 +125,7 @@ interface ColorInputProps {
   backgroundColor: Signal<string>;
 }
 
-function ColorInput(props: ColorInputProps) {
+function ColorInputForm(props: ColorInputProps) {
   const patternColorErrorMessage = useSignal<string | null>(null);
   const backgroundColorErrorMessage = useSignal<string | null>(null);
 
@@ -252,7 +252,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
                 label: "Color",
                 id: "color",
                 component: (
-                  <ColorInput
+                  <ColorInputForm
                     patternColor={patternColor}
                     backgroundColor={backgroundColor}
                   />

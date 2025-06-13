@@ -1,4 +1,5 @@
 import { Signal } from "@preact/signals";
+import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 
 interface ColorSelectorProps {
   color: Signal<string>;
@@ -25,6 +26,7 @@ export function ColorSelector(props: ColorSelectorProps) {
         onInput={props.onInput}
         class="absolute inset-0 w-full h-full invisible"
         name={props.name}
+	disabled={!IS_BROWSER}
       />
     </label>
   );
