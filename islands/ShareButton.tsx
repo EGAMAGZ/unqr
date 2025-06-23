@@ -1,13 +1,21 @@
 import { Share as ShareIcon } from "../components/icons/Share.tsx";
-
-interface Props {
-  onClick: () => Promise<File>;
-  disabled: boolean;
-}
-
-export function ShareButton(props: Props) {
+import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
+import { generateImageBlob, generateImageFile } from "../util/image.ts";
+import { FILE_TYPES, FileType } from "../schema/qr-code.ts";
+import { useQr } from "../context/QrContext.tsx";
+export function ShareButton() {
+  const { isValid, qrData } = useQr();
   const handleClick = async () => {
-    const imageFile = await props.onClick();
+    const { fileType, url, patternColor, backgroundColor } = qrData.value;
+    const imageFile = generateImageFile(
+      await generateImageBlob(
+        fileType as FileType,
+        url,
+        patternColor,
+        backgroundColor,
+      ),
+      FILE_TYPES[fileType as FileType].extension,
+    );
     try {
       await navigator.share({
         files: [imageFile],
@@ -16,16 +24,14 @@ export function ShareButton(props: Props) {
       console.error(error);
     }
   };
-
-  if(!navigator.canShare) return null;
-
+  if (!navigator.canShare) return null;
   return (
     <button
       type="button"
       onClick={handleClick}
       class="btn btn-primary btn-sm rounded md:w-fit"
-      disabled={props.disabled}
-      aria-disabled={props.disabled}
+      disabled={!isValid.value || !IS_BROWSER}
+      aria-disabled={!isValid.value || !IS_BROWSER}
     >
       <ShareIcon />
       Share
