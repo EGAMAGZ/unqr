@@ -168,7 +168,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
       <div
         class={`flex flex-col-reverse md:flex-row gap-4 ${props.class ?? ""}`}
       >
-        <QrCodeImage />
+        <QrCodeImage class="flex-1" />
         <div class="flex-1" aria-label="QR Code Form">
           <span class="text-4xl font-semibold">Generate QR Code</span>
           <div class="divider" />
