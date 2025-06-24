@@ -1,5 +1,6 @@
-import { FileType } from "../schema/qr-code.ts";
+import { FILE_TYPES, FileType } from "../schema/qr-code.ts";
 import QrCodeGenerator from "qrcode";
+import { DEFAULT_FILE_NAME } from "./constants.ts";
 
 export async function generateImageBlob(
   fileType: FileType,
@@ -35,3 +36,12 @@ export async function generateImageBlob(
 
   return new Blob([content], { type: fileType });
 }
+
+export const generateImageFile = (imageBlob: Blob, fileExtension: string) =>
+  new File(
+    [imageBlob],
+    `${DEFAULT_FILE_NAME}.${fileExtension}`,
+    {
+      type: imageBlob.type,
+    },
+  );

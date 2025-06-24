@@ -4,7 +4,11 @@
 
 import * as $_app from "./routes/_app.tsx";
 import * as $index from "./routes/index.tsx";
+import * as $ColorInputField from "./islands/ColorInputField.tsx";
+import * as $CopyButton from "./islands/CopyButton.tsx";
+import * as $DownloadButton from "./islands/DownloadButton.tsx";
 import * as $QrCodeForm from "./islands/QrCodeForm.tsx";
+import * as $ShareButton from "./islands/ShareButton.tsx";
 import * as $TabNav from "./islands/TabNav.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -14,7 +18,11 @@ const manifest = {
     "./routes/index.tsx": $index,
   },
   islands: {
+    "./islands/ColorInputField.tsx": $ColorInputField,
+    "./islands/CopyButton.tsx": $CopyButton,
+    "./islands/DownloadButton.tsx": $DownloadButton,
     "./islands/QrCodeForm.tsx": $QrCodeForm,
+    "./islands/ShareButton.tsx": $ShareButton,
     "./islands/TabNav.tsx": $TabNav,
   },
   baseUrl: import.meta.url,
