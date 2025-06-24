@@ -5,7 +5,11 @@ import { DEFAULT_FILE_NAME } from "../util/constants.ts";
 import { generateImageBlob } from "../util/image.ts";
 import { FILE_TYPES, FileType } from "../schema/qr-code.ts";
 
-export function DownloadButton() {
+interface Props {
+  class?: string;
+}
+
+export function DownloadButton(props: Props) {
   const { isValid, qrData } = useQr();
   const handleClick = async () => {
     const { fileType, url, patternColor, backgroundColor } = qrData.value;
@@ -30,12 +34,12 @@ export function DownloadButton() {
   return (
     <button
       type="button"
-      class="btn btn-primary btn-sm rounded md:w-fit"
+      class={`btn btn-primary btn-sm rounded md:w-fit ${props.class ?? ""}`}
       disabled={!isValid.value || !IS_BROWSER}
       aria-disabled={!isValid.value || !IS_BROWSER}
       onClick={handleClick}
     >
-      <Download class="size-4" />
+      <Download />
       Download
     </button>
   );

@@ -12,6 +12,7 @@ import { QrCodeImageContainer } from "../components/QrCodeImageContainer.tsx";
 import { TabNav } from "./TabNav.tsx";
 import { ColorInputField } from "./ColorInputField.tsx";
 import { ShareButton } from "./ShareButton.tsx";
+import { CopyButton } from "./CopyButton.tsx";
 import { QrProvider, useQr } from "@/context/QrContext.tsx";
 import { DownloadButton } from "./DownloadButton.tsx";
 
@@ -197,6 +198,8 @@ export function QrCodeForm(props: QrCodeFormProps) {
               <DownloadButton />
 
               <ShareButton />
+
+	      <CopyButton />
             </div>
           </div>
         </div>

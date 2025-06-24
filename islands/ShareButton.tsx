@@ -3,8 +3,14 @@ import { IS_BROWSER } from "$fresh/src/runtime/utils.ts";
 import { generateImageBlob, generateImageFile } from "../util/image.ts";
 import { FILE_TYPES, FileType } from "../schema/qr-code.ts";
 import { useQr } from "../context/QrContext.tsx";
-export function ShareButton() {
+
+interface Props {
+  class?: string;
+}
+
+export function ShareButton(props: Props) {
   const { isValid, qrData } = useQr();
+
   const handleClick = async () => {
     const { fileType, url, patternColor, backgroundColor } = qrData.value;
     const imageFile = generateImageFile(
@@ -16,6 +22,7 @@ export function ShareButton() {
       ),
       FILE_TYPES[fileType as FileType].extension,
     );
+
     try {
       await navigator.share({
         files: [imageFile],
@@ -24,12 +31,14 @@ export function ShareButton() {
       console.error(error);
     }
   };
+
   if (!navigator.canShare) return null;
+
   return (
     <button
       type="button"
       onClick={handleClick}
-      class="btn btn-primary btn-sm rounded md:w-fit"
+      class={`btn btn-primary btn-sm rounded md:w-fit ${props.class ?? ""}`}
       disabled={!isValid.value || !IS_BROWSER}
       aria-disabled={!isValid.value || !IS_BROWSER}
     >
