@@ -199,7 +199,7 @@ export function QrCodeForm(props: QrCodeFormProps) {
 
               <ShareButton />
 
-	      <CopyButton />
+              <CopyButton />
             </div>
           </div>
         </div>
